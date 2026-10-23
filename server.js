@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const nodemailer = require('nodemailer');
 const QRCode = require('qrcode');
 const os = require('os');
@@ -11,41 +10,24 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3008;
 
-// Dossiers de stockage
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
-const DATA_DIR = path.join(__dirname, 'data');
-const DATA_FILE = path.join(DATA_DIR, 'declarations.json');
-const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
+let inMemoryConfig = null;
 
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify([]));
-
-// Configuration par défaut
+// Configuration (chargée depuis les variables d'environnement Vercel / .env)
 function loadConfig() {
-  const defaultConfig = {
-    recipientEmail: process.env.RECIPIENT_EMAIL || 'hse@powertech-group.com',
-    smtpHost: process.env.SMTP_HOST || '',
-    smtpPort: process.env.SMTP_PORT || '587',
-    smtpUser: process.env.SMTP_USER || '',
-    smtpPass: process.env.SMTP_PASS || '',
-    smtpSecure: process.env.SMTP_SECURE === 'true',
-    fromEmail: process.env.FROM_EMAIL || '"Système HSE Powertech" <alerte-hse@powertech-group.com>'
+  if (inMemoryConfig) return inMemoryConfig;
+  return {
+    recipientEmail: process.env.RECIPIENT_EMAIL || 'anta.gaye@power-techservices.com',
+    smtpHost: process.env.SMTP_HOST || 'mail.power-techservices.com',
+    smtpPort: process.env.SMTP_PORT || '465',
+    smtpUser: process.env.SMTP_USER || 'anta.gaye@power-techservices.com',
+    smtpPass: process.env.SMTP_PASS || 'Powertech2526',
+    smtpSecure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+    fromEmail: process.env.FROM_EMAIL || '"Signalement HSE Powertech" <anta.gaye@power-techservices.com>'
   };
-
-  if (fs.existsSync(CONFIG_FILE)) {
-    try {
-      const saved = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
-      return { ...defaultConfig, ...saved };
-    } catch (e) {
-      console.error('Erreur lecture config:', e);
-    }
-  }
-  return defaultConfig;
 }
 
 function saveConfig(cfg) {
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2));
+  inMemoryConfig = { ...loadConfig(), ...cfg };
 }
 
 // Récupération de l'IP locale pour le QR code
@@ -69,18 +51,22 @@ async function getTransporter() {
 
   // Si SMTP configuré
   if (config.smtpHost && config.smtpUser && config.smtpPass) {
+    const isSsl = config.smtpSecure || config.smtpPort === '465' || parseInt(config.smtpPort, 10) === 465;
     return {
       transporter: nodemailer.createTransport({
         host: config.smtpHost,
-        port: parseInt(config.smtpPort, 10) || 587,
-        secure: config.smtpSecure || config.smtpPort === '465',
+        port: parseInt(config.smtpPort, 10) || (isSsl ? 465 : 587),
+        secure: isSsl,
         auth: {
           user: config.smtpUser,
           pass: config.smtpPass
         },
         tls: {
           rejectUnauthorized: false
-        }
+        },
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 10000
       }),
       isTest: false,
       from: config.fromEmail || config.smtpUser
@@ -129,7 +115,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(UPLOADS_DIR));
+
+// ROUTE : Santé / information API
+app.get('/api', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'Powertech Engineering Group - API HSE',
+    version: '1.0.0',
+    ref: 'F-HSE-SD',
+    recipient: 'anta.gaye@power-techservices.com'
+  });
+});
 
 // ROUTE : Obtenir la configuration actuelle
 app.get('/api/config', (req, res) => {
@@ -192,14 +188,11 @@ app.get('/api/qrcode', async (req, res) => {
   }
 });
 
-// ROUTE : Lister les déclarations
+const inMemoryDeclarations = [];
+
+// ROUTE : Lister les déclarations (en mémoire)
 app.get('/api/declarations', (req, res) => {
-  try {
-    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-    res.json(data.reverse()); // Plus récents en premier
-  } catch (err) {
-    res.status(500).json({ error: 'Erreur lecture déclarations' });
-  }
+  res.json([...inMemoryDeclarations].reverse());
 });
 
 // ROUTE : Soumettre une déclaration
@@ -229,14 +222,8 @@ app.post('/api/declarations', upload.array('photos', 10), async (req, res) => {
     const isAnonymous = modeDeclaration === 'Anonyme';
     const nomAffiche = isAnonymous ? 'Anonyme' : (declarantName?.trim() || 'Non précisé');
 
-    // Fichiers uploadés
-    const uploadedPhotos = (req.files || []).map(file => ({
-      originalName: file.originalname,
-      filename: file.filename,
-      size: file.size,
-      url: `/uploads/${file.filename}`,
-      path: file.path
-    }));
+    // Photos reçues en mémoire
+    const photoCount = (req.files || []).length;
 
     const declarationRecord = {
       id,
@@ -251,8 +238,11 @@ app.post('/api/declarations', upload.array('photos', 10), async (req, res) => {
       gravite: gravite || 'Moyenne',
       descriptionSituation: descriptionSituation.trim(),
       actionsCorrectives: actionsCorrectives?.trim() || 'Aucune action immédiate proposée',
-      photos: uploadedPhotos.map(p => ({ filename: p.filename, originalName: p.originalName, url: p.url }))
+      photosCount: photoCount
     };
+
+    inMemoryDeclarations.push(declarationRecord);
+    if (inMemoryDeclarations.length > 50) inMemoryDeclarations.shift();
 
     // Préparation de l'envoi d'e-mail direct (zéro base de données)
     let emailResult = { sent: false };
@@ -335,9 +325,9 @@ app.post('/api/declarations', upload.array('photos', 10), async (req, res) => {
               <div style="font-weight: 600; font-size: 13px; color: #475569; margin-bottom: 6px;">Actions correctives suggérées / apportées :</div>
               <div class="text-box">${declarationRecord.actionsCorrectives}</div>
 
-              ${uploadedPhotos.length > 0 ? `
+              ${photoCount > 0 ? `
                 <div class="photos-alert">
-                  📷 <strong>${uploadedPhotos.length} photo(s) jointe(s)</strong> à cette déclaration (visibles en pièces jointes de cet e-mail).
+                  <strong>${photoCount} photo(s) jointe(s)</strong> à cette déclaration (visibles en pièces jointes de cet e-mail).
                 </div>
               ` : '<div style="font-size: 13px; color: #94a3b8; font-style: italic;">Aucune photo jointe.</div>'}
             </div>
@@ -400,12 +390,6 @@ app.post('/api/declarations', upload.array('photos', 10), async (req, res) => {
         console.log('--- Email de test envoyé ! ---');
         console.log('Lien de prévisualisation:', emailResult.previewUrl);
       }
-    } catch (mailErr) {
-      console.error('Erreur lors de l envoi email:', mailErr);
-      emailResult = {
-        sent: false,
-        error: mailErr.message
-      };
     } catch (mailErr) {
       console.error('Erreur lors de l envoi email:', mailErr);
       emailResult = {
