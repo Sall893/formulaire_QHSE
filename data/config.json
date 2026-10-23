@@ -1,0 +1,9 @@
+{
+  "recipientEmail": "anta.gaye@power-techservices.com",
+  "smtpHost": "mail.power-techservices.com",
+  "smtpPort": "465",
+  "smtpUser": "anta.gaye@power-techservices.com",
+  "smtpPass": "Powertech2526",
+  "smtpSecure": true,
+  "fromEmail": "\"Signalement HSE Powertech\" <anta.gaye@power-techservices.com>"
+}

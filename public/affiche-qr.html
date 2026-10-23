@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Affiche Chantier HSE — Powertech Engineering Group</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Inter:wght@400;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+    }
+
+    .controls-bar {
+      max-width: 780px;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 14px 20px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .url-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .url-input-wrap input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13.5px;
+    }
+
+    .btn-print {
+      background: #f97316;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-print:hover {
+      background: #ea580c;
+    }
+
+    /* A4 POSTER SHEET */
+    .poster-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 14mm 16mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      border: 2px solid #0f172a;
+    }
+
+    /* Top Grid Header */
+    .poster-header-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr 140px;
+      border: 1.5px solid #0f172a;
+      margin-bottom: 15px;
+    }
+
+    .header-col {
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .col-logo {
+      border-right: 1.5px solid #0f172a;
+    }
+
+    .col-logo img {
+      max-width: 170px;
+      max-height: 55px;
+      object-fit: contain;
+    }
+
+    .col-title {
+      border-right: 1.5px solid #0f172a;
+      text-align: center;
+    }
+
+    .col-title h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1.25;
+      color: #0f172a;
+    }
+
+    .col-meta {
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.5;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-left: 10px;
+    }
+
+    /* Slogan Banner */
+    .poster-slogan-box {
+      background: #fff1f2;
+      border: 2px solid #e11d48;
+      border-radius: 8px;
+      text-align: center;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+    }
+
+    .slogan-main {
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: #dc2626;
+      font-style: italic;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .slogan-sub {
+      font-size: 13px;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    /* Main Poster Center: Giant QR Code */
+    .qr-hero-card {
+      background: #f8fafc;
+      border: 2px solid #0284c7;
+      border-radius: 12px;
+      padding: 24px 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .qr-hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+      color: #0284c7;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .qr-image-container {
+      background: white;
+      padding: 14px;
+      display: inline-block;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      border: 1.5px solid #cbd5e1;
+    }
+
+    #qrCanvas {
+      display: block;
+      width: 230px;
+      height: 230px;
+    }
+
+    .qr-url-text {
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: 0.2px;
+    }
+
+    /* 3 Steps Guide */
+    .steps-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .step-box {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      background: #0284c7;
+      color: white;
+      font-weight: 800;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+
+    .step-desc {
+      font-size: 11px;
+      color: #64748b;
+      line-height: 1.35;
+    }
+
+    /* Safety Motto Footer */
+    .poster-footer {
+      border-top: 2px solid #0f172a;
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .footer-highlight {
+      color: #ea580c;
+      font-weight: 800;
+    }
+
+    /* PRINT RULES */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .controls-bar {
+        display: none !important;
+      }
+      .poster-sheet {
+        border: 2px solid black !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        min-height: 100vh !important;
+        padding: 10mm 12mm !important;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <!-- BARRE DE CONTRÔLE SUPÉRIEURE (NON IMPRIMÉE) -->
+  <div class="controls-bar">
+    <div class="url-input-wrap">
+      <label for="inputLiveUrl" style="font-weight: 700; font-size: 13px;">URL du QR Code :</label>
+      <input type="text" id="inputLiveUrl" placeholder="https://votre-site.vercel.app">
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button type="button" class="btn-print" onclick="window.print()">
+        🖨️ Imprimer l'Affiche (A4)
+      </button>
+      <a href="/" style="padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; text-decoration: none; color: #0f172a; font-weight: 600; background: white;">
+        &larr; Retour au formulaire
+      </a>
+    </div>
+  </div>
+
+  <!-- FEUILLE OFFICIELLE FORMAT A4 CHANTIER -->
+  <div class="poster-sheet">
+    
+    <!-- EN-TÊTE OFFICIEL -->
+    <div>
+      <div class="poster-header-grid">
+        <div class="header-col col-logo">
+          <img src="assets/logo.png" alt="Logo Powertech">
+        </div>
+        <div class="header-col col-title">
+          <h2>Formulaire de déclaration de situations dangereuses</h2>
+        </div>
+        <div class="header-col col-meta">
+          <div>REF : <strong>F-HSE-SD</strong></div>
+          <div>Version : <strong>01</strong></div>
+          <div>HSE Powertech</div>
+        </div>
+      </div>
+
+      <!-- BANDEAU SLOGAN -->
+      <div class="poster-slogan-box">
+        <div class="slogan-main">« Je vois, je scanne, je signale »</div>
+        <div class="slogan-sub">
+          Signalez tout danger immédiatement pour protéger votre vie et celle de vos collègues.
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTE CENTRALE AVEC LE QR CODE GÉANT -->
+    <div class="qr-hero-card">
+      <div class="qr-hero-title">Scannez pour signaler un danger</div>
+      
+      <div class="qr-image-container">
+        <div id="qrCodeTarget"></div>
+      </div>
+
+      <div class="qr-url-text" id="qrTextDisplay">
+        Chargement de l'adresse...
+      </div>
+    </div>
+
+    <!-- GUIDE EN 3 ÉTAPES CLAIRES -->
+    <div>
+      <div class="steps-row">
+        <div class="step-box">
+          <div class="step-num">1</div>
+          <div class="step-title">Scannez</div>
+          <div class="step-desc">Ouvrez l'appareil photo de votre téléphone et pointez le QR Code.</div>
+        </div>
+        <div class="step-box">
+          <div class="step-num">2</div>
+          <div class="step-title">Photographiez</div>
+          <div class="step-desc">Décrivez le fait constaté et prenez la situation dangereuse en photo.</div>
+        </div>
+        <div class="step-box">
+          <div class="step-num">3</div>
+          <div class="step-title">Envoyez</div>
+          <div class="step-desc">Cliquez sur Envoyer : le responsable HSE est notifié instantanément.</div>
+        </div>
+      </div>
+
+      <!-- PIED DE PAGE SÉCURITÉ -->
+      <div class="poster-footer">
+        <div>POWERTECH ENGINEERING GROUP &bull; <span class="footer-highlight">Zéro Accident sur nos Chantiers</span></div>
+        <div>La sécurité est l'affaire de tous</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let qrcodeInstance = null;
+
+    function generateQr(url) {
+      const container = document.getElementById('qrCodeTarget');
+      container.innerHTML = '';
+      qrcodeInstance = new QRCode(container, {
+        text: url,
+        width: 220,
+        height: 220,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      document.getElementById('qrTextDisplay').textContent = url;
+    }
+
+    const defaultUrl = window.location.origin.includes('localhost')
+      ? 'https://formulaire-qhse.vercel.app'
+      : window.location.origin;
+
+    const inputUrl = document.getElementById('inputLiveUrl');
+    inputUrl.value = defaultUrl;
+    generateQr(defaultUrl);
+
+    inputUrl.addEventListener('input', (e) => {
+      const val = e.target.value.trim() || defaultUrl;
+      generateQr(val);
+    });
+  </script>
+</body>
+</html>

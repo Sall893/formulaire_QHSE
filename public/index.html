@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulaire de Déclaration de Situations Dangereuses | Powertech Engineering Group</title>
+  <meta name="description" content="Formulaire officiel de signalement HSE de Powertech Engineering Group : Je vois, je scanne, je signale.">
+  <link rel="stylesheet" href="style.css">
+  <!-- html2pdf for client-side PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <!-- CONTENEUR PRINCIPAL DU FORMULAIRE MAQUETTE -->
+  <main class="page-wrapper">
+    <form id="hseForm" class="official-form-sheet" novalidate>
+      
+      <!-- EN-TÊTE OFFICIEL DE LA FICHE -->
+      <div class="header-table-grid">
+        <!-- Logo Powertech -->
+        <div class="header-cell cell-logo">
+          <img src="assets/logo.png" alt="Logo Powertech" id="sheetLogo">
+        </div>
+        
+        <!-- Titre du formulaire -->
+        <div class="header-cell cell-title">
+          <h1>Formulaire de déclaration de situations dangereuses</h1>
+        </div>
+        
+        <!-- Métadonnées & Références -->
+        <div class="header-cell cell-meta">
+          <div class="cell-meta-row">
+            <span>REF :</span>
+            <strong>F-HSE-SD</strong>
+          </div>
+          <div class="cell-meta-row">
+            <span>Date :</span>
+            <strong id="metaTodayDate">22/10/2026</strong>
+          </div>
+          <div class="cell-meta-row">
+            <span>Version :</span>
+            <strong>01</strong>
+          </div>
+          <div class="cell-meta-row">
+            <span>Pagination :</span>
+            <strong>1/1</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLOGAN & PRÉSENTATION -->
+      <div class="slogan-banner">
+        <div class="slogan-title">« Je vois, je scanne, je signale »</div>
+        <div class="slogan-description">
+          Ce présent formulaire a pour objectif de faciliter le signalement des situations dangereuses afin de permettre leur analyse et la mise en œuvre d'actions de prévention.
+        </div>
+      </div>
+
+      <!-- PARTIE 1 : IDENTIFICATION DU DÉCLARANT -->
+      <section class="form-section">
+        <div class="section-header-band">
+          <span>Partie 1 : Identification du déclarant</span>
+        </div>
+        <div class="section-body">
+          
+          <!-- Mode de déclaration -->
+          <div class="form-row">
+            <label class="form-label">Mode de déclaration :</label>
+            <div class="form-control-wrap">
+              <div class="mode-declaration-options">
+                <label class="custom-radio">
+                  <input type="radio" name="modeDeclaration" value="Anonyme" id="radioAnonyme" checked>
+                  <span>Anonyme</span>
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="modeDeclaration" value="Nominative" id="radioNominative">
+                  <span>Nominative</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prénom & Nom -->
+          <div class="form-row" id="rowDeclarantName">
+            <label class="form-label" for="inputDeclarantName">Prénom & Nom :</label>
+            <div class="form-control-wrap">
+              <input type="text" id="inputDeclarantName" name="declarantName" placeholder="Entrez votre prénom et nom" disabled>
+              <div class="helper-text" id="helpDeclarantName">
+                À renseigner uniquement si vous choisissez une déclaration nominative.
+              </div>
+            </div>
+          </div>
+
+          <!-- Département -->
+          <div class="form-row">
+            <label class="form-label" for="inputDepartement">Département :</label>
+            <div class="form-control-wrap">
+              <input type="text" id="inputDepartement" name="departement" list="listDepartements" placeholder="Ex: HSE, Maintenance, Chantier, Logistique, Énergie...">
+              <datalist id="listDepartements">
+                <option value="HSE / QHSE"></option>
+                <option value="Maintenance Industrielle"></option>
+                <option value="Chantier / Génie Civil"></option>
+                <option value="Électrique & Énergie"></option>
+                <option value="Logistique & Approvisionnement"></option>
+                <option value="Mécanique & Soudure"></option>
+                <option value="Bureau d'Études"></option>
+                <option value="Administration / RH"></option>
+              </datalist>
+            </div>
+          </div>
+
+          <!-- Site / Chantier concerné -->
+          <div class="form-row">
+            <label class="form-label form-label-required" for="inputSite">Site/ chantier concerné :</label>
+            <div class="form-control-wrap">
+              <input type="text" id="inputSite" name="siteChantier" list="listSites" placeholder="Ex: Chantier Dakar, Atelier Central, Dépôt Logistique..." required>
+              <datalist id="listSites">
+                <option value="Atelier Principal Powertech"></option>
+                <option value="Chantier Solaire / EnR"></option>
+                <option value="Dépôt Central & Magasin"></option>
+                <option value="Chantier Industriel"></option>
+                <option value="Siège Administratif"></option>
+                <option value="Sous-station Électrique"></option>
+              </datalist>
+            </div>
+          </div>
+
+          <!-- Date de la déclaration -->
+          <div class="form-row">
+            <label class="form-label form-label-required" for="inputDate">Date de la déclaration :</label>
+            <div class="form-control-wrap">
+              <input type="date" id="inputDate" name="dateDeclaration" required>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- PARTIE 2 : DÉCLARATION DE LA SITUATION DANGEREUSE -->
+      <section class="form-section">
+        <div class="section-header-band">
+          <span>Partie 2 : Déclaration de la situation dangereuse</span>
+        </div>
+        <div class="section-body">
+          
+          <!-- Description de la situation -->
+          <div style="margin-bottom: 20px;">
+            <label class="form-label form-label-required" for="inputDescription" style="margin-bottom: 4px; display: block;">
+              Description de la situation dangereuse :
+            </label>
+            <div class="helper-text" style="margin-bottom: 8px;">
+              Décrivez les faits observés, le lieu précis, l'activité concernée et le risque potentiel, si vous le connaissez.
+            </div>
+            <textarea id="inputDescription" name="descriptionSituation" placeholder="Précisez ici les faits constatés, l'emplacement exact, les personnes ou matériels exposés et le risque immédiat..." required></textarea>
+            
+            <!-- Niveau de gravité estimé (Design corporate sobre sans émoticônes) -->
+            <div class="pro-gravity-section">
+              <label class="form-label" style="margin-bottom: 8px; display: block;">
+                Niveau de gravité estimé :
+              </label>
+              <div class="pro-gravity-grid" id="gravitySelector">
+                <button type="button" class="pro-gravity-card" data-val="Faible">
+                  <span class="gravity-indicator indicator-low"></span>
+                  <div class="gravity-info">
+                    <span class="gravity-name">Faible</span>
+                    <span class="gravity-hint">Risque mineur</span>
+                  </div>
+                </button>
+                <button type="button" class="pro-gravity-card active" data-val="Moyenne">
+                  <span class="gravity-indicator indicator-med"></span>
+                  <div class="gravity-info">
+                    <span class="gravity-name">Moyenne</span>
+                    <span class="gravity-hint">Risque modéré</span>
+                  </div>
+                </button>
+                <button type="button" class="pro-gravity-card" data-val="Élevée">
+                  <span class="gravity-indicator indicator-high"></span>
+                  <div class="gravity-info">
+                    <span class="gravity-name">Élevée</span>
+                    <span class="gravity-hint">Danger sérieux</span>
+                  </div>
+                </button>
+                <button type="button" class="pro-gravity-card" data-val="Critique">
+                  <span class="gravity-indicator indicator-crit"></span>
+                  <div class="gravity-info">
+                    <span class="gravity-name">Critique</span>
+                    <span class="gravity-hint">Arrêt immédiat</span>
+                  </div>
+                </button>
+              </div>
+              <input type="hidden" name="gravite" id="hiddenGravite" value="Moyenne">
+            </div>
+          </div>
+
+          <!-- Joindre les photos (Design corporate professionnel sans émoticônes) -->
+          <div class="pro-photo-section">
+            <label class="form-label" style="margin-bottom: 8px; display: block;">
+              Joindre les photos :
+            </label>
+            
+            <div class="pro-photo-box" id="dropZone">
+              <input type="file" id="fileInput" name="photos" accept="image/*" multiple style="display: none;">
+              <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+              
+              <div class="pro-photo-actions">
+                <button type="button" class="btn-pro-photo btn-pro-camera" id="btnTriggerCamera">
+                  <svg class="pro-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                  <span>Prendre une photo</span>
+                </button>
+                
+                <button type="button" class="btn-pro-photo btn-pro-browse" id="btnTriggerFilePicker">
+                  <svg class="pro-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <span>Parcourir les fichiers</span>
+                </button>
+              </div>
+              
+              <div class="pro-photo-note">
+                Formats acceptés : JPG, PNG, WebP &bull; Taille max : 15 Mo
+              </div>
+            </div>
+
+            <!-- Galerie d'aperçus des photos sélectionnées -->
+            <div class="photo-previews" id="previewContainer"></div>
+          </div>
+
+          <!-- Actions correctives à apporter -->
+          <div>
+            <label class="form-label" for="inputActions" style="margin-bottom: 6px; display: block;">
+              Actions correctives à apporter :
+            </label>
+            <textarea id="inputActions" name="actionsCorrectives" placeholder="Propositions d'améliorations, mesures immédiates prises sur place, consignes ou réparations à réaliser..."></textarea>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- BOUTON D'ENVOI -->
+      <div class="form-actions-bar">
+        <button type="submit" class="btn-main btn-submit" id="btnSubmitForm">
+          <span id="btnSubmitText">Envoyer</span>
+        </button>
+      </div>
+
+    </form>
+  </main>
+
+  <!-- MODAL 1 : CONFIRMATION D'ENVOI RÉUSSI -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Déclaration transmise avec succès</div>
+        <button type="button" class="modal-close-btn" data-close="successModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="success-check-badge">✓</div>
+        <div class="success-title">Signalement Enregistré & Transmis !</div>
+        <div class="success-sub">
+          L'e-mail officiel avec tous les détails et photos a été envoyé au responsable HSE.
+        </div>
+
+        <div class="info-recap-box">
+          <div class="info-recap-row">
+            <span>Numéro de signalement :</span>
+            <strong id="recapId">SD-2026-00000</strong>
+          </div>
+          <div class="info-recap-row">
+            <span>Site / Chantier :</span>
+            <strong id="recapSite">-</strong>
+          </div>
+          <div class="info-recap-row">
+            <span>Mode :</span>
+            <span id="recapMode">-</span>
+          </div>
+          <div class="info-recap-row">
+            <span>Date & Heure :</span>
+            <span id="recapDate">-</span>
+          </div>
+          <div class="info-recap-row">
+            <span>Destinataire notifié :</span>
+            <strong id="recapRecipient" style="color: #0284c7;">-</strong>
+          </div>
+        </div>
+
+        <!-- Banner for previewing email if test mode is active -->
+        <div id="testEmailPreviewBanner" class="test-email-banner" style="display: none;">
+          📬 <strong>Aperçu E-mail disponible :</strong><br>
+          <a href="#" target="_blank" id="testEmailLink">Cliquez ici pour voir l'e-mail reçu dans le navigateur</a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-main btn-secondary" id="btnSuccessDownloadPdf">
+          <span>📄</span> Télécharger la Fiche PDF
+        </button>
+        <button type="button" class="btn-main btn-submit" id="btnNewDeclaration">
+          <span>➕</span> Nouveau signalement
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2 : AFFICHE & QR CODE CHANTIER (« Je vois, je scanne, je signale ») -->
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Affiche & QR Code Chantier</div>
+        <button type="button" class="modal-close-btn" data-close="qrModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="qr-poster-preview" id="qrPosterArea">
+          <div style="font-size: 13px; font-weight: 800; color: #f97316; text-transform: uppercase;">POWERTECH ENGINEERING GROUP</div>
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 19px; color: #0f172a; margin: 4px 0 10px 0;">
+            SIGNALEMENT DES SITUATIONS DANGEREUSES
+          </h2>
+          <div style="color: #dc2626; font-size: 17px; font-weight: 700; font-style: italic; margin-bottom: 12px;">
+            « Je vois, je scanne, je signale »
+          </div>
+          <img src="" alt="QR Code Chantier" id="qrCodeImage" class="qr-image">
+          <div style="font-size: 12.5px; color: #475569; max-width: 380px; margin: 0 auto;">
+            Scannez ce QR Code avec l'appareil photo de votre smartphone pour ouvrir le formulaire et signaler immédiatement un risque.
+          </div>
+          <div style="margin-top: 10px; font-size: 11px; color: #94a3b8;" id="qrUrlDisplay"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-main btn-secondary" onclick="window.print()">
+          <span>🖨️</span> Imprimer l'affiche QR
+        </button>
+        <button type="button" class="btn-main btn-submit" data-close="qrModal">
+          Fermer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3 : CONFIGURATION E-MAIL & SMTP -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Configuration de la réception des e-mails</div>
+        <button type="button" class="modal-close-btn" data-close="configModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="configForm">
+          <div style="margin-bottom: 16px;">
+            <label class="form-label form-label-required" for="cfgRecipientEmail">
+              Votre adresse e-mail de réception :
+            </label>
+            <div class="helper-text" style="margin-bottom: 6px;">
+              C'est l'adresse à laquelle vous recevrez toutes les déclarations avec photos.
+            </div>
+            <input type="email" id="cfgRecipientEmail" required placeholder="ex: mon-adresse@powertech-group.com ou gmail.com">
+          </div>
+
+          <details style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px;">
+            <summary style="font-weight: 700; font-size: 13.5px; cursor: pointer; color: #0284c7;">
+              ⚙️ Paramètres avancés du serveur d'envoi SMTP (Optionnel)
+            </summary>
+            <div style="margin-top: 12px; font-size: 13px;">
+              <div style="margin-bottom: 10px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 4px;">Serveur SMTP (Hôte) :</label>
+                <input type="text" id="cfgSmtpHost" placeholder="ex: smtp.gmail.com ou smtp.office365.com">
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                  <label style="display: block; font-weight: 600; margin-bottom: 4px;">Port :</label>
+                  <input type="text" id="cfgSmtpPort" placeholder="587 ou 465">
+                </div>
+                <div>
+                  <label style="display: block; font-weight: 600; margin-bottom: 4px;">Utilisateur SMTP :</label>
+                  <input type="text" id="cfgSmtpUser" placeholder="votre-compte@gmail.com">
+                </div>
+              </div>
+              <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 4px;">Mot de passe d'application SMTP :</label>
+                <input type="password" id="cfgSmtpPass" placeholder="••••••••••••••••">
+                <div class="helper-text">
+                  Pour Gmail : utilisez un "Mot de passe d'application" généré dans votre compte Google (Sécurité &gt; Validation en 2 étapes &gt; Mots de passe des applications).
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn-main btn-secondary" id="btnTestEmail" style="font-size: 13px; padding: 8px 14px;">
+              <span>✉️</span> Envoyer un e-mail de test
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-main btn-secondary" data-close="configModal">Annuler</button>
+        <button type="button" class="btn-main btn-submit" id="btnSaveConfig">
+          <span>💾</span> Enregistrer la configuration
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4 : REGISTRE & HISTORIQUE DES DÉCLARATIONS -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal-box" style="max-width: 780px;">
+      <div class="modal-header">
+        <div class="modal-title">Registre des déclarations de situations dangereuses</div>
+        <button type="button" class="modal-close-btn" data-close="historyModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 10px; flex-wrap: wrap;">
+          <input type="text" id="searchHistory" placeholder="🔍 Rechercher par site, numéro ou mot-clé..." style="max-width: 320px; padding: 7px 12px;">
+          <span style="font-size: 13px; color: #64748b;" id="historyCount">0 signalement(s)</span>
+        </div>
+
+        <div id="historyListContainer" style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto;">
+          <!-- Injecté dynamiquement -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-main btn-submit" data-close="historyModal">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

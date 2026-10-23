@@ -1,0 +1,17 @@
+[
+  {
+    "id": "SD-2026-78847",
+    "refDocument": "F-HSE-SD",
+    "version": "01",
+    "createdAt": "2026-10-22T16:11:18.847Z",
+    "dateDeclaration": "2026-10-22",
+    "modeDeclaration": "Nominative",
+    "declarantName": "Mamadou Diallo",
+    "departement": "Maintenance",
+    "siteChantier": "Chantier Dakar",
+    "gravite": "Élevée",
+    "descriptionSituation": "Cable electrique haute tension denude et expose a l eau pres de la zone de stockage.",
+    "actionsCorrectives": "Balisage immediat de la zone et coupure du disjoncteur en attente de l equipe d electriciens.",
+    "photos": []
+  }
+]
