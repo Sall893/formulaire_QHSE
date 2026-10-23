@@ -253,15 +253,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('recapSite').textContent = result.declaration.siteChantier;
         document.getElementById('recapMode').textContent = result.declaration.modeDeclaration;
         document.getElementById('recapDate').textContent = `${result.declaration.dateDeclaration} (${result.declaration.gravite})`;
-        document.getElementById('recapRecipient').textContent = result.email.recipient || 'Responsable HSE';
+        document.getElementById('recapRecipient').textContent = result.email.recipient || 'anta.gaye@power-techservices.com';
 
-        const testBanner = document.getElementById('testEmailPreviewBanner');
-        const testLink = document.getElementById('testEmailLink');
-        if (result.email.previewUrl) {
-          testBanner.style.display = 'block';
-          testLink.href = result.email.previewUrl;
-        } else {
-          testBanner.style.display = 'none';
+        const emailStatusBanner = document.getElementById('emailStatusBanner');
+        if (emailStatusBanner) {
+          emailStatusBanner.style.display = 'block';
+          if (result.email && result.email.sent) {
+            emailStatusBanner.style.background = '#ecfdf5';
+            emailStatusBanner.style.border = '1px solid #10b981';
+            emailStatusBanner.style.color = '#065f46';
+            emailStatusBanner.innerHTML = `<strong>E-mail délivré avec succès !</strong><br>Le signalement avec photos a été envoyé à <strong>${result.email.recipient}</strong>.`;
+          } else {
+            emailStatusBanner.style.background = '#fef2f2';
+            emailStatusBanner.style.border = '1px solid #ef4444';
+            emailStatusBanner.style.color = '#991b1b';
+            emailStatusBanner.innerHTML = `<strong>Échec d'envoi de l'e-mail :</strong><br>${result.email?.error || 'Identifiants SMTP incorrects sur mail.power-techservices.com'}.<br><span style="font-size: 11.5px; opacity: 0.9;">Vérifiez le mot de passe de la boîte mail.</span>`;
+          }
         }
 
         openModal(successModal);

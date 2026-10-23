@@ -44,8 +44,6 @@ function getLocalIp() {
 }
 
 // Initialisation du transporteur Nodemailer
-let etherealAccount = null;
-
 async function getTransporter() {
   const config = loadConfig();
 
@@ -68,31 +66,11 @@ async function getTransporter() {
         greetingTimeout: 8000,
         socketTimeout: 10000
       }),
-      isTest: false,
       from: config.fromEmail || config.smtpUser
     };
   }
 
-  // Sinon, compte de test Ethereal (permet de visualiser l'email en 1 clic sans bloquer)
-  if (!etherealAccount) {
-    etherealAccount = await nodemailer.createTestAccount();
-    console.log('--- Compte Ethereal Test Initialisé ---');
-    console.log('Utilisateur:', etherealAccount.user);
-  }
-
-  return {
-    transporter: nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: etherealAccount.user,
-        pass: etherealAccount.pass
-      }
-    }),
-    isTest: true,
-    from: '"Alerte HSE Powertech" <alerte-hse@powertech-group.com>'
-  };
+  throw new Error('Identifiants SMTP incomplets (hôte, utilisateur ou mot de passe non configurés).');
 }
 
 // Multer pour l'upload d'images en mémoire (compatible Vercel Serverless)
@@ -361,37 +339,19 @@ app.post('/api/declarations', upload.array('photos', 10), async (req, res) => {
         emailResult = {
           sent: true,
           messageId: info.messageId,
-          recipient: config.recipientEmail,
-          isTest,
-          previewUrl: isTest ? nodemailer.getTestMessageUrl(info) : null
+          recipient: config.recipientEmail
         };
+        console.log(`[HSE] E-mail transmis avec succès à ${config.recipientEmail} (ID: ${id})`);
       } catch (smtpErr) {
-        console.error('Erreur SMTP direct, bascule automatique sur compte de test:', smtpErr.message);
-        // Fallback test account
-        const testAcc = await nodemailer.createTestAccount();
-        const fallbackTransporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
-          auth: { user: testAcc.user, pass: testAcc.pass }
-        });
-        const info = await fallbackTransporter.sendMail(mailOptions);
+        console.error('[HSE] Erreur envoi SMTP à', config.recipientEmail, ':', smtpErr.message);
         emailResult = {
-          sent: true,
-          messageId: info.messageId,
+          sent: false,
           recipient: config.recipientEmail,
-          isTest: true,
-          smtpWarning: smtpErr.message,
-          previewUrl: nodemailer.getTestMessageUrl(info)
+          error: smtpErr.message
         };
-      }
-
-      if (emailResult.previewUrl) {
-        console.log('--- Email de test envoyé ! ---');
-        console.log('Lien de prévisualisation:', emailResult.previewUrl);
       }
     } catch (mailErr) {
-      console.error('Erreur lors de l envoi email:', mailErr);
+      console.error('[HSE] Erreur configuration ou transporteur:', mailErr);
       emailResult = {
         sent: false,
         error: mailErr.message
@@ -416,7 +376,7 @@ app.post('/api/test-email', async (req, res) => {
   try {
     const config = loadConfig();
     const targetEmail = req.body.email || config.recipientEmail;
-    const { transporter, isTest, from } = await getTransporter();
+    const { transporter, from } = await getTransporter();
 
     const info = await transporter.sendMail({
       from,
@@ -437,8 +397,7 @@ app.post('/api/test-email', async (req, res) => {
     res.json({
       success: true,
       message: `E-mail de test envoyé à ${targetEmail}`,
-      isTest,
-      previewUrl: isTest ? nodemailer.getTestMessageUrl(info) : null
+      messageId: info.messageId
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
